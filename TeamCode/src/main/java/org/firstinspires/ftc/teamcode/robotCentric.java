@@ -71,6 +71,10 @@ public class bagelTeleop extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightFront = null;
 	private DcMotor rightBack = null;
+	private DcMotor leftVerticalSlides = null;
+	private DcMotor rightVerticalSlides = null;
+	private DcMotor horizontalSlides = null;
+	private DcMotor depositLever = null;
 
     @Override
     public void runOpMode() {
@@ -84,6 +88,10 @@ public class bagelTeleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
 		leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
 		rightBack  = hardwareMap.get(DcMotor.class, "rightBack");
+		leftVerticalSlides = hardwareMap.get(DcMotor.class, "leftVerticaSlides");
+		rightVerticalSlides = hardwareMap.get(DcMotor.class, "rightVerticaSlides");
+		horizontalSlides = hardwareMap.get(DcMotor.class, "horizontalSlides");
+		depositLever = hardwareMap.get(DcMotor.class, "depositLever");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -99,9 +107,9 @@ public class bagelTeleop extends LinearOpMode {
         while (opModeIsActive()) {
 
             y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-			x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-			rx = gamepad1.right_stick_x;
-			denom = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1); //use denom to keep the drive ratios (dont get it clipped)
+	   		x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+	    	rx = gamepad1.right_stick_x;
+	    	denom = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1); //use denom to keep the drive ratios (dont get it clipped)
 
 			leftFrontPower = (y + x + rx) / denominator;
             leftBackPower = (y - x + rx) / denominator;
