@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 @TeleOp(name="bagelTeleop", group="Linear OpMode")
-@Disabled
+//@Disabled
 public class bagelTeleop extends LinearOpMode {
 
 	//Teleop Variables
