@@ -71,10 +71,7 @@ public class bagelTeleop extends LinearOpMode {
     private DcMotor leftBack = null;
     private DcMotor rightFront = null;
 	private DcMotor rightBack = null;
-	private DcMotor leftVerticalSlides = null;
-	private DcMotor rightVerticalSlides = null;
-	private DcMotor horizontalSlides = null;
-	private DcMotor depositLever = null;
+	
 
     @Override
     public void runOpMode() {
@@ -88,12 +85,8 @@ public class bagelTeleop extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
 		leftBack  = hardwareMap.get(DcMotor.class, "leftBack");
 		rightBack  = hardwareMap.get(DcMotor.class, "rightBack");
-		leftVerticalSlides = hardwareMap.get(DcMotor.class, "leftVerticaSlides");
-		rightVerticalSlides = hardwareMap.get(DcMotor.class, "rightVerticaSlides");
-		horizontalSlides = hardwareMap.get(DcMotor.class, "horizontalSlides");
-		depositLever = hardwareMap.get(DcMotor.class, "depositLever");
 
-        // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
+        // To drive f	orward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         rightFront.setDirection(DcMotor.Direction.REVERSE);
