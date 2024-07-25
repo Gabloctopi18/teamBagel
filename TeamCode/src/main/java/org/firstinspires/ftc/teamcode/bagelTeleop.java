@@ -186,6 +186,7 @@ public class bagelTeleop extends LinearOpMode {
                     outtakeArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     outtakeArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     outtakeArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    outtakeUsingEncoders = true;
                 }
             }
 
