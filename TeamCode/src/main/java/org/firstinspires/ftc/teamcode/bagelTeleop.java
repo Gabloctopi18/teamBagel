@@ -82,6 +82,7 @@ public class bagelTeleop extends LinearOpMode {
     boolean horClawOpen = false;
     boolean outtakeArmDeposit = false;
     boolean intakeArmPickup = false;
+
     //NEED TO TEST FOR THESE VALUES
     int depositPosition = 100;
     int pickupPosition = -100;
@@ -183,13 +184,16 @@ public class bagelTeleop extends LinearOpMode {
                 outtakeArm.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
                 outtakeUsingEncoders = false;
                 if (gamepad2.right_bumper){ //reset with right bumper only works when already in manual mode
+                    if (outtakeArmDeposit)
+                        depositPosition = outtakeArm.getCurrentPosition();
+                    else
+                        pickupPosition = outtakeArm.getCurrentPosition();
                     outtakeArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     outtakeArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     outtakeArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     outtakeUsingEncoders = true;
                 }
             }
-
 
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "leftFront (%.2f), rightFront (%.2f)", leftFrontPower, rightFrontPower);
