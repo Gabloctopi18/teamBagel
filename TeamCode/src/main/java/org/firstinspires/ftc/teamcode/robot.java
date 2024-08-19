@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -23,6 +24,8 @@ public class robot {
     private DcMotor vertSlidesRight = null;
     private DcMotor horSlides = null;
     private DcMotor outtakeArm = null;
+
+    private DcMotor[] driveMotors = new DcMotor[]{leftFront, leftBack, rightFront, rightBack};
 
     int depositPosition = 100;
     int pickupPosition = -100;
@@ -55,12 +58,19 @@ public class robot {
         vertSlidesLeft = setupDriveMotor("vertSlidesLeft", DcMotor.Direction.FORWARD);
         vertSlidesRight = setupDriveMotor("vertSlidesRight", DcMotor.Direction.REVERSE);
         horSlides = setupDriveMotor("horSlides", DcMotor.Direction.REVERSE);
+
+        Servo leftIntakeServo = myOpMode.hardwareMap.get(Servo.class, "leftIntakeServo");
+        Servo rightIntakeServo = myOpMode.hardwareMap.get(Servo.class, "rightIntakeServo");
+        Servo vertClawServo = myOpMode.hardwareMap.get(Servo.class, "vertClawServo");
+        Servo horClawServo = myOpMode.hardwareMap.get(Servo.class, "horClawServo");
+
         imu = myOpMode.hardwareMap.get(IMU.class, "imu");
 
         leftVertEncoder = myOpMode.hardwareMap.get(DcMotor.class, "leftVertEncoder");
         rightVertEncoder = myOpMode.hardwareMap.get(DcMotor.class, "rightVertEncoder");
         horEncoder = myOpMode.hardwareMap.get(DcMotor.class, "horEncoder");
 
+        //hubs use Auto Bulk caching mode for faster encoder readings
         List<LynxModule> allHubs = myOpMode.hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -81,6 +91,71 @@ public class robot {
         aMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         aMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Requires motor encoder cables to be hooked up.
         return aMotor;
+    }
+
+    public void pidForward(double speedDamp, double inches, double countsPerInch, double[] constants) {
+        double p;
+        double i;
+        double d;
+        double power;
+        double prevError;
+        double target = countsPerInch * inches;
+        double error = target - ((rightVertEncoder.getCurrentPosition() + leftVertEncoder.getCurrentPosition())/2.0);
+        while (error != 0.0){
+            prevError = error;
+            error = target - ((rightVertEncoder.getCurrentPosition() + leftVertEncoder.getCurrentPosition())/2.0);
+            p = constants[0] * error;
+            i = constants[1] * (error + prevError)/2;
+            d = constants[2] * (error - prevError)/2;
+            power = speedDamp * (p + i + d);
+            for (int j = 0; i < 4; i++)
+                driveMotors[j].setPower(power);
+        }
+    }
+    public void pidStrafe(double speedDamp, double inches, double countsPerInch, double[] constants) {
+        double p;
+        double i;
+        double d;
+        double power;
+        double prevError;
+        double target = countsPerInch * inches;
+        double error = target - horEncoder.getCurrentPosition();
+        while (error != 0.0){
+            prevError = error;
+            error = target - horEncoder.getCurrentPosition();
+            p = constants[0] * error;
+            i = constants[1] * (error + prevError)/2;
+            d = constants[2] * (error - prevError)/2;
+            power = speedDamp * (p + i + d);
+            leftFront.setPower(power);
+            leftBack.setPower(-power);
+            rightFront.setPower(-power);
+            rightBack.setPower(power);
+        }
+    }
+    public void pidTurn(double speedDamp, double degrees, double[] constants) {
+        double p;
+        double i;
+        double d;
+        double power;
+        double prevError;
+        double target = degrees;
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+        double error = target - orientation.getYaw(AngleUnit.DEGREES);
+        double turnrate = angularVelocity.zRotationRate;
+        while (error != 0.0){
+            prevError = error;
+            error = target - (horEncoder.getCurrentPosition()/2.0);
+            p = constants[0] * error;
+            i = constants[1] * (error + prevError)/2;
+            d = constants[2] * turnrate;
+            power = speedDamp * (p + i + d);
+            leftFront.setPower(power);
+            leftBack.setPower(power);
+            rightFront.setPower(-power);
+            rightBack.setPower(-power);
+        }
     }
 
 }
