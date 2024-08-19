@@ -122,9 +122,9 @@ public class directionalPID extends LinearOpMode {
 
         waitForStart();
 
-        pidForward(1.0, 12.0, countsPerInch, forwardConstants[0], forwardConstants[1], forwardConstants[2]);
-        pidStrafe(1.0, 12.0, countsPerInch, strafeConstants[0], strafeConstants[1], strafeConstants[2]);
-        pidTurn(1.0, 90, turnConstants[0], turnConstants[1], turnConstants[2]);
+        pidForward(1.0, 12.0, countsPerInch, forwardConstants);
+        pidStrafe(1.0, 12.0, countsPerInch, strafeConstants);
+        pidTurn(1.0, 90, turnConstants);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -139,7 +139,7 @@ public class directionalPID extends LinearOpMode {
      *  2) Move runs out of time
      *  3) Driver stops the OpMode running.
      */
-    public void pidForward(double speedDamp, double inches, double countsPerInch, double kp, double ki, double kd) {
+    public void pidForward(double speedDamp, double inches, double countsPerInch, double[] constants) {
         double p;
         double i;
         double d;
@@ -150,15 +150,15 @@ public class directionalPID extends LinearOpMode {
         while (error != 0.0){
             prevError = error;
             error = target - ((rightVertEncoder.getCurrentPosition() + leftVertEncoder.getCurrentPosition())/2.0);
-            p = kp * error;
-            i = ki * (error + prevError)/2;
-            d = kd * (error - prevError)/2;
+            p = constants[0] * error;
+            i = constants[1] * (error + prevError)/2;
+            d = constants[2] * (error - prevError)/2;
             power = speedDamp * (p + i + d);
             for (int j = 0; i < 4; i++)
                 motors[j].setPower(power);
         }
     }
-    public void pidStrafe(double speedDamp, double inches, double countsPerInch, double kp, double ki, double kd) {
+    public void pidStrafe(double speedDamp, double inches, double countsPerInch, double[] constants) {
         double p;
         double i;
         double d;
@@ -169,9 +169,9 @@ public class directionalPID extends LinearOpMode {
         while (error != 0.0){
             prevError = error;
             error = target - horEncoder.getCurrentPosition();
-            p = kp * error;
-            i = ki * (error + prevError)/2;
-            d = kd * (error - prevError)/2;
+            p = constants[0] * error;
+            i = constants[1] * (error + prevError)/2;
+            d = constants[2] * (error - prevError)/2;
             power = speedDamp * (p + i + d);
             leftFront.setPower(power);
             leftBack.setPower(-power);
@@ -179,7 +179,7 @@ public class directionalPID extends LinearOpMode {
             rightBack.setPower(power);
         }
     }
-    public void pidTurn(double speedDamp, double degrees, double kp, double ki, double kd) {
+    public void pidTurn(double speedDamp, double degrees, double[] constants) {
         double p;
         double i;
         double d;
@@ -193,9 +193,9 @@ public class directionalPID extends LinearOpMode {
         while (error != 0.0){
             prevError = error;
             error = target - (horEncoder.getCurrentPosition()/2.0);
-            p = kp * error;
-            i = ki * (error + prevError)/2;
-            d = kd * turnrate;
+            p = constants[0] * error;
+            i = constants[1] * (error + prevError)/2;
+            d = constants[2] * turnrate;
             power = speedDamp * (p + i + d);
             leftFront.setPower(power);
             leftBack.setPower(power);
