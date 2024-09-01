@@ -29,14 +29,12 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 
 /*
@@ -52,9 +50,9 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="robotCentricOnly", group="Linear OpMode")
+@TeleOp(name="bagelTeleop", group="Linear OpMode")
 //@Disabled
-public class bagelTeleop extends LinearOpMode {
+public class BagelTeleop extends LinearOpMode {
 
     //Teleop Variables
     double y = 0;
@@ -160,11 +158,14 @@ public class bagelTeleop extends LinearOpMode {
 
             vertSlidesLeft.setPower(-gamepad2.right_stick_y);
             vertSlidesRight.setPower(-gamepad2.right_stick_y);
-            horSlides.setPower(gamepad2.left_stick_x);
+            horSlides.setPower(gamepad2.left_trigger - gamepad2.right_trigger);
 
-            if (gamepad2.y)
+            leftIntakeServo.setPosition(0.5 + 0.5*gamepad2.left_stick_y);
+            rightIntakeServo.setPosition(0.5 - 0.5*gamepad2.left_stick_y);
+
+            if (gamepad2.left_bumper)
                 horClawServo.setPosition(horClawOpen ? horClawClosePos : horClawOpenPos);
-            if (gamepad2.x)
+            if (gamepad2.right_bumper)
                 vertClawServo.setPosition(vertClawOpen ? vertClawClosePos : vertClawOpenPos);
             if (gamepad2.a)
                 outtakeArm.setTargetPosition(outtakeArmDeposit ? depositPosition : pickupPosition);
@@ -178,12 +179,12 @@ public class bagelTeleop extends LinearOpMode {
                 outtakeArm.setTargetPosition(outtakeArm.getCurrentPosition() - 10);
 
             //reset the outtake motor in case the encoders go haywire
-            if (gamepad2.left_bumper){ //use left bumper to activate manual mode
+            if (gamepad2.back){ //use left bumper to activate manual mode
                 outtakeArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 outtakeArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 outtakeArm.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
                 outtakeUsingEncoders = false;
-                if (gamepad2.right_bumper){ //reset with right bumper only works when already in manual mode
+                if (gamepad2.options){ //reset with right bumper only works when already in manual mode
                     if (outtakeArmDeposit)
                         depositPosition = outtakeArm.getCurrentPosition();
                     else
@@ -198,7 +199,7 @@ public class bagelTeleop extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "leftFront (%.2f), rightFront (%.2f)", leftFrontPower, rightFrontPower);
             telemetry.addData("Motors", "leftBack (%.2f), rightBack (%.2f)", leftBackPower, rightBackPower);
-            telemetry.addData("Outtake Motor", "position (%2f), mode (%s)", outtakeArm.getCurrentPosition(), outtakeUsingEncoders?"using encoders":"manual movement");
+            telemetry.addData("Outtake Motor", "position (%d), mode (%s)", outtakeArm.getCurrentPosition(), outtakeUsingEncoders?"using encoders":"manual movement");
             telemetry.update();
         }
     }
